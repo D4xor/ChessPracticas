@@ -202,7 +202,54 @@ public class searchChess {
 	}
 	
 	public void depthLimited() {
-		
+		int limit = 4;
+		Stack<Node> stk = new Stack<Node>();  
+		ArrayList<Action> m_solution = new ArrayList<Action>();
+		ArrayList<Position> visited = new ArrayList<Position>();
+		Boolean solutionFound = false;
+		State actual=null;
+		Node node = null;
+		double cost=0.0;
+		int value=1;
+		stk.push(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
+		while(!solutionFound && !stk.isEmpty()) {
+			node = stk.pop();
+			
+			System.out.println("");
+			System.out.println("Value : "+node.getM_node());
+			System.out.println("Cost : "+node.getM_cost());
+			System.out.println("Pos row : "+node.getM_pos().row + " | "+ "Pos col : "+node.getM_pos().col);		
+			System.out.println("------------------------");
+			
+			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
+			if (node.getM_state().isFinal()) { // first we check if the state is final
+				solutionFound = true;
+				m_finalState = node.getM_state();
+				m_cost=node.getM_cost();
+				m_finalSolution=node.getM_road();
+			}
+			else if(!isVisited(visited,node.getM_pos())){
+				visited.add(node.getM_pos());
+				m_explore +=1;
+				if ((possibleActions.size() != 0) && (node.getM_road().size()<limit)){
+					for(int i=possibleActions.size()-1;i>=0;i--) {
+						ArrayList<Action> newList = new ArrayList<Action>();
+						for(Action act : node.getM_road()) {
+							newList.add(act);
+						}
+						cost=node.getM_cost();
+						actual=node.getM_state();
+						value+=1;
+						newList.add(possibleActions.get(i));
+						cost += possibleActions.get(i).getCost();
+						actual = actual.applyAction(possibleActions.get(i));
+						stk.push(new Node(actual.m_agentPos,newList,cost,value,actual));
+						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
+					}
+				}
+			}
+		}
+		m_generate=value;
 	}
 	
 	public void iterativeDeepening() {
