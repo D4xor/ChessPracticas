@@ -64,14 +64,13 @@ public class Utils {
 			
 		Random gen = new Random(seed);
 		
-		numPieces[agent] -= 1;
 		
 		double f = (n*n)/64.0;
 	    for(int i=0; i<numPieces.length; i++) {
 	    	numPieces[i] = (int) Math.round(numPieces[i]*f);
 	    }
 	    	
-		
+		numPieces[agent] -= 1;
 		ArrayList<Position> allPositions = getAllBoardPositions(n);
 		
 		// placing our agent in the first row, we know these are the first n elements in allPositions

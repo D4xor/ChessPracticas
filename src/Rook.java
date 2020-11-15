@@ -20,9 +20,9 @@ public class Rook extends Piece {
 	public ArrayList<Action> getPossibleActions(State state){
 		ArrayList<Action> list = null;
 		
-		list = this.getHorizontalLeftMoves(state);
+		list = this.getVerticalDownMoves(state);
+		list.addAll(this.getHorizontalLeftMoves(state));
 		list.addAll(this.getHorizontalRightMoves(state));
-		list.addAll(this.getVerticalDownMoves(state));
 		list.addAll(this.getVerticalUpMoves(state));
 		
 		return list;

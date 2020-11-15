@@ -17,7 +17,7 @@ public class Bishop extends Piece {
 		
 		list = this.getDownLeftMoves(state);
 		list.addAll(this.getDownRightMoves(state));
-		list.addAll(this.getUpLeftMoves(state) );
+		list.addAll(this.getUpLeftMoves(state));
 		list.addAll(this.getUpRightMoves(state));
 		
 		return list;

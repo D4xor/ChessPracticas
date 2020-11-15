@@ -17,9 +17,22 @@ public class searchChess {
 	double m_cost=0.0;
 	int m_explore=0;
 	int m_generate=0;
+	int m_size;
+	
+	ArrayList<Action> m_solution = new ArrayList<Action>();
+	ArrayList<Position> visited = new ArrayList<Position>();
+	Queue<Node> open = new LinkedList<>();
+	Stack<Node> stk = new Stack<Node>();  
+	PriorityQueue<Node> nodePriority = new PriorityQueue<Node>();
+	Boolean solutionFound = false;
+	State actual=null;
+	Node node = null;
+	double cost=0.0;
+	int value=1, cnt = 1;
 	
 	searchChess(String method,int size, double density, int agent, int seed){
 		m_initialState=Utils.getProblemInstance(size, density, seed, agent);
+		m_size=size;
 		switch(agent){
 		case Utils.wRook: m_piece = new Rook(0); 
  			break;
@@ -51,15 +64,6 @@ public class searchChess {
 	}
 	
 	public void breadthFirst() {
-		ArrayList<Action> m_solution = new ArrayList<Action>();
-		ArrayList<Position> visited = new ArrayList<Position>();
-		Queue<Node> open = new LinkedList<>();
-		Boolean solutionFound = false;
-		State actual=null;
-		Node node = null;
-		double cost=0.0;
-		int value=1;
-		
 		open.add(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
 		while(!solutionFound && !open.isEmpty()) {
 			node = open.remove();
@@ -83,16 +87,11 @@ public class searchChess {
 				if (possibleActions.size() != 0){
 					for(int i=0;i<possibleActions.size();i++) {
 						ArrayList<Action> newList = new ArrayList<Action>();
-						for(Action act : node.getM_road()) {
-							newList.add(act);
-						}
-						cost=node.getM_cost();
-						actual=node.getM_state();
+						for(Action act : node.getM_road()) {newList.add(act);}
 						value+=1;
 						newList.add(possibleActions.get(i));
-						cost += possibleActions.get(i).getCost();
-						actual = actual.applyAction(possibleActions.get(i));
-						open.add(new Node(actual.m_agentPos,newList,cost,value,actual));
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						open.add(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),value,actual));
 						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
 					}
 				}
@@ -102,24 +101,9 @@ public class searchChess {
 	} 
 	
 	public void depthFirst() {
-		Stack<Node> stk = new Stack<Node>();  
-		ArrayList<Action> m_solution = new ArrayList<Action>();
-		ArrayList<Position> visited = new ArrayList<Position>();
-		Boolean solutionFound = false;
-		State actual=null;
-		Node node = null;
-		double cost=0.0;
-		int value=1;
 		stk.push(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
 		while(!solutionFound && !stk.isEmpty()) {
 			node = stk.pop();
-			
-			System.out.println("");
-			System.out.println("Value : "+node.getM_node());
-			System.out.println("Cost : "+node.getM_cost());
-			System.out.println("Pos row : "+node.getM_pos().row + " | "+ "Pos col : "+node.getM_pos().col);		
-			System.out.println("------------------------");
-			
 			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
 			if (node.getM_state().isFinal()) { // first we check if the state is final
 				solutionFound = true;
@@ -131,19 +115,15 @@ public class searchChess {
 				visited.add(node.getM_pos());
 				m_explore +=1;
 				if (possibleActions.size() != 0){
+					value = cnt + possibleActions.size()+1;
+					cnt=value-1;
 					for(int i=possibleActions.size()-1;i>=0;i--) {
 						ArrayList<Action> newList = new ArrayList<Action>();
-						for(Action act : node.getM_road()) {
-							newList.add(act);
-						}
-						cost=node.getM_cost();
-						actual=node.getM_state();
-						value+=1;
+						for(Action act : node.getM_road()) {newList.add(act);}
+						value-=1;
 						newList.add(possibleActions.get(i));
-						cost += possibleActions.get(i).getCost();
-						actual = actual.applyAction(possibleActions.get(i));
-						stk.push(new Node(actual.m_agentPos,newList,cost,value,actual));
-						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						stk.push(new Node(actual.m_agentPos,newList,node.getM_cost()+possibleActions.get(i).getCost(),value,actual));
 					}
 				}
 			}
@@ -152,24 +132,9 @@ public class searchChess {
 	}
 	
 	public void uniformCost() {
-		PriorityQueue<Node> nodePriority = new PriorityQueue<Node>();
-		ArrayList<Action> m_solution = new ArrayList<Action>();
-		ArrayList<Position> visited = new ArrayList<Position>();
-		Boolean solutionFound = false;
-		State actual=null;
-		Node node = null;
-		double cost=0.0;
-		int value=1;
 		nodePriority.add(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
 		while(!solutionFound && !nodePriority.isEmpty()) {
 			node = nodePriority.remove();
-			
-			System.out.println("");
-			System.out.println("Value : "+node.getM_node());
-			System.out.println("Cost : "+node.getM_cost());
-			System.out.println("Pos row : "+node.getM_pos().row + " | "+ "Pos col : "+node.getM_pos().col);		
-			System.out.println("------------------------");
-			
 			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
 			if (node.getM_state().isFinal()) { // first we check if the state is final
 				solutionFound = true;
@@ -181,19 +146,15 @@ public class searchChess {
 				visited.add(node.getM_pos());
 				m_explore +=1;
 				if (possibleActions.size() != 0){
-					for(int i=possibleActions.size()-1;i>=0;i--) {
+					for(int i=0;i<possibleActions.size();i++) {
 						ArrayList<Action> newList = new ArrayList<Action>();
 						for(Action act : node.getM_road()) {
 							newList.add(act);
 						}
-						cost=node.getM_cost();
-						actual=node.getM_state();
 						value+=1;
 						newList.add(possibleActions.get(i));
-						cost += possibleActions.get(i).getCost();
-						actual = actual.applyAction(possibleActions.get(i));
-						nodePriority.add(new Node(actual.m_agentPos,newList,cost,value,actual));
-						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						nodePriority.add(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),value,actual));
 					}
 				}
 			}
@@ -203,24 +164,9 @@ public class searchChess {
 	
 	public void depthLimited() {
 		int limit = 4;
-		Stack<Node> stk = new Stack<Node>();  
-		ArrayList<Action> m_solution = new ArrayList<Action>();
-		ArrayList<Position> visited = new ArrayList<Position>();
-		Boolean solutionFound = false;
-		State actual=null;
-		Node node = null;
-		double cost=0.0;
-		int value=1;
 		stk.push(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
 		while(!solutionFound && !stk.isEmpty()) {
 			node = stk.pop();
-			
-			System.out.println("");
-			System.out.println("Value : "+node.getM_node());
-			System.out.println("Cost : "+node.getM_cost());
-			System.out.println("Pos row : "+node.getM_pos().row + " | "+ "Pos col : "+node.getM_pos().col);		
-			System.out.println("------------------------");
-			
 			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
 			if (node.getM_state().isFinal()) { // first we check if the state is final
 				solutionFound = true;
@@ -234,17 +180,11 @@ public class searchChess {
 				if ((possibleActions.size() != 0) && (node.getM_road().size()<limit)){
 					for(int i=possibleActions.size()-1;i>=0;i--) {
 						ArrayList<Action> newList = new ArrayList<Action>();
-						for(Action act : node.getM_road()) {
-							newList.add(act);
-						}
-						cost=node.getM_cost();
-						actual=node.getM_state();
+						for(Action act : node.getM_road()) {newList.add(act);}
 						value+=1;
 						newList.add(possibleActions.get(i));
-						cost += possibleActions.get(i).getCost();
-						actual = actual.applyAction(possibleActions.get(i));
-						stk.push(new Node(actual.m_agentPos,newList,cost,value,actual));
-						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						stk.push(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),value,actual));
 					}
 				}
 			}
@@ -257,11 +197,61 @@ public class searchChess {
 	}
 	
 	public void bestFirst() {
-		
+		nodePriority.add(new Node(m_initialState.m_agentPos,m_solution,cost,m_size-1-m_initialState.m_agentPos.row,"best-first",value,m_initialState));
+		while(!solutionFound && !nodePriority.isEmpty()) {
+			node = nodePriority.remove();
+			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
+			if (node.getM_state().isFinal()) { // first we check if the state is final
+				solutionFound = true;
+				m_finalState = node.getM_state();
+				m_cost=node.getM_cost();
+				m_finalSolution=node.getM_road();
+			}
+			else if(!isVisited(visited,node.getM_pos())){
+				visited.add(node.getM_pos());
+				m_explore +=1;
+				if (possibleActions.size() != 0){
+					for(int i=0;i<possibleActions.size();i++) {
+						ArrayList<Action> newList = new ArrayList<Action>();
+						for(Action act : node.getM_road()) {newList.add(act);}
+						value+=1;
+						newList.add(possibleActions.get(i));
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						nodePriority.add(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),m_size-1-actual.m_agentPos.row,"best-first",value,actual));		
+					}
+				}
+			}
+		}
+		m_generate=value;
 	}
 	
 	public void aStar() {
-		
+		nodePriority.add(new Node(m_initialState.m_agentPos,m_solution,cost,m_size-1-m_initialState.m_agentPos.row,"a-star",value,m_initialState));
+		while(!solutionFound && !nodePriority.isEmpty()) {
+			node = nodePriority.remove();
+			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
+			if (node.getM_state().isFinal()) { // first we check if the state is final
+				solutionFound = true;
+				m_finalState = node.getM_state();
+				m_cost=node.getM_cost();
+				m_finalSolution=node.getM_road();
+			}
+			else if(!isVisited(visited,node.getM_pos())){
+				visited.add(node.getM_pos());
+				m_explore +=1;
+				if (possibleActions.size() != 0){
+					for(int i=0;i<possibleActions.size();i++) {
+						ArrayList<Action> newList = new ArrayList<Action>();
+						for(Action act : node.getM_road()) {newList.add(act);}
+						value+=1;
+						newList.add(possibleActions.get(i));
+						actual = node.getM_state().applyAction(possibleActions.get(i));
+						nodePriority.add(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),m_size-1-actual.m_agentPos.row,"a-star",value,actual));	
+					}
+				}
+			}
+		}
+		m_generate=value;
 	}
 
 	public Boolean isVisited(ArrayList<Position> visited, Position arrayToTest) {
@@ -304,11 +294,11 @@ public class searchChess {
 	
 public static void main(String[] args) {
 		
-		String method = "uniform-cost";
+		String method = "breadth-first";
 		int size = 8;
-		double density = 1.0;
-		int agent = 2;
-		int seed1 = 1;
+		double density = 0.5;
+		int agent = 5;
+		int seed1 = 3;
 		
 		searchChess srch = new searchChess(method,size,density,agent,seed1);
 		Utils.printBoard(srch.m_initialState);
@@ -329,8 +319,6 @@ public static void main(String[] args) {
 			Utils.printBoard(srch.m_finalState);
 		}
 		System.out.println();
-		
-
 	}
 	
 }
