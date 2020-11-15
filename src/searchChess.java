@@ -294,12 +294,23 @@ public class searchChess {
 	
 public static void main(String[] args) {
 		
-		String method = "breadth-first";
-		int size = 8;
-		double density = 0.5;
-		int agent = 5;
-		int seed1 = 3;
+		String method = args[0];
+		int size = Integer.parseInt(args[1]);
+		double density = Double.parseDouble(args[2]);
+		int agent = Integer.parseInt(args[3]);
+		int seed1 = Integer.parseInt(args[4]);
 		
+		if (args.length != 5){
+			System.out.println("\n**Sorry, correct usage require 5 params:");
+			System.out.println("Name of the method of research");
+			System.out.println("Board size: int.");
+			System.out.println("Density: (0.1,1]. Probability for each piece to be included.");
+			System.out.println("Agent: {0,1,2,3,4,5} standing for white pawn, rook, bishop, knight, queen or king.");
+			System.out.println("Seed1: int. To initialize the problem instance random number generator (for reproducibility)");
+
+			System.exit(0);
+		}
+
 		searchChess srch = new searchChess(method,size,density,agent,seed1);
 		Utils.printBoard(srch.m_initialState);
 		srch.execute();
