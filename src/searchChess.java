@@ -67,13 +67,6 @@ public class searchChess {
 		open.add(new Node(m_initialState.m_agentPos,m_solution,cost,value,m_initialState));
 		while(!solutionFound && !open.isEmpty()) {
 			node = open.remove();
-			
-			System.out.println("");
-			System.out.println("Value : "+node.getM_node());
-			System.out.println("Cost : "+node.getM_cost());
-			System.out.println("Pos row : "+node.getM_pos().row + " | "+ "Pos col : "+node.getM_pos().col);		
-			System.out.println("------------------------");
-			
 			ArrayList<Action> possibleActions = m_piece.getPossibleActions(node.getM_state());
 			if (node.getM_state().isFinal()) { // first we check if the state is final
 				solutionFound = true;
@@ -92,7 +85,6 @@ public class searchChess {
 						newList.add(possibleActions.get(i));
 						actual = node.getM_state().applyAction(possibleActions.get(i));
 						open.add(new Node(actual.m_agentPos,newList,node.getM_cost() + possibleActions.get(i).getCost(),value,actual));
-						System.out.println("Pos row : "+actual.m_agentPos.row + " | "+ "Pos col : "+actual.m_agentPos.col);		
 					}
 				}
 			}
@@ -299,6 +291,8 @@ public static void main(String[] args) {
 		double density = Double.parseDouble(args[2]);
 		int agent = Integer.parseInt(args[3]);
 		int seed1 = Integer.parseInt(args[4]);
+		
+		//System.out.println("m : " + method + " | size : " + size + " | dens : " + density + " | agent : " + agent + " | seed : "+ seed1);
 		
 		if (args.length != 5){
 			System.out.println("\n**Sorry, correct usage require 5 params:");
