@@ -1,5 +1,7 @@
 package packages;
 
+import java.util.ArrayList;
+
 public class Evaluate {
 
 	static final int[][] pawnBoard = {{0,  0,  0,  0,  0,  0,  0,  0},
@@ -76,7 +78,7 @@ public class Evaluate {
 		
 	}
 	
-	public int evaluatePosition(State board,Position pos) {
+	public int evaluatePosition1(State board,Position pos) {
 		int count = 0;
 		int piece = board.m_board[pos.row][pos.col];
 		switch(piece) {
@@ -119,7 +121,6 @@ public class Evaluate {
 		default:
 			break;
 		}
-		
 		/*
 		for(int i=0;i<board.m_boardSize;i++) {
 			for(int j=0;j<board.m_boardSize;j++) {
@@ -167,6 +168,27 @@ public class Evaluate {
 			}
 		}*/
 		return count;
+	}
+
+	public double evaluatePosition2(State board,int color){
+		double result=0.0;
+		ArrayList<Integer> values = board.countPieces();
+		if(color==0){
+			result = 200*(values.get(5)-values.get(11))
+					+ 9*(values.get(4)-values.get(10))
+					+5*(values.get(1)-values.get(7))
+					+3*(values.get(2)-values.get(8) +values.get(3)-values.get(9))
+					+ values.get(0)-values.get(6)
+					+0.1*(board.getPossibleMovesColor(0)-board.getPossibleMovesColor(1));
+		}else if(color == 1){
+			result = 200*(values.get(11)-values.get(5))
+					+ 9*(values.get(10)-values.get(4))
+					+5*(values.get(7)-values.get(1))
+					+3*(values.get(8)-values.get(2) +values.get(9)-values.get(3))
+					+ values.get(6)-values.get(0)
+					+0.1*(board.getPossibleMovesColor(1)-board.getPossibleMovesColor(0));
+		}
+		return result;
 	}
 	
 	

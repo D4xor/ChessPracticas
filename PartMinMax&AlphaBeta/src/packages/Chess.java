@@ -5,14 +5,17 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Chess {
-	
+	static final int verif = 15;
+
 	State m_state;
 	String m_method;
 	String m_color;
 	Player p1=null,p2=null;
-	int m_profund,m_maxjugadas;
+	int m_profund,m_maxjugadas,m_actverif;
 	Evaluate m_eval = new Evaluate();
 	Random rd = new Random();
+	ArrayList<Action> wAction = new ArrayList<Action>();
+	ArrayList<Action> bAction = new ArrayList<Action>();
 	
 	State state = null;
 	Action act = null;
@@ -35,6 +38,7 @@ public class Chess {
 		}else {
 			m_maxjugadas=maxJugadas;
 		}
+		m_actverif=verif;
 		definePlayer();
 	}
 	
@@ -52,23 +56,32 @@ public class Chess {
 		}else {
 			m_maxjugadas=maxJugadas;
 		}
+		m_actverif=verif;
 		definePlayer();
 	}
 	
 	public void execute() {
-		for(int i = 0;i<m_maxjugadas;i++) {
-			if(m_state.isNoKing(0)) {
+		for(int i = 0;i<m_maxjugadas;i++) { //Represent number of moves possible
+			if(m_state.isNoKing(0)) { //check if black wins
 				System.out.println("Black win");
 				break;
 			}
+			if(checkSameAction(m_actverif,bAction)){
+				System.out.println("3 times, a similar action");
+				break;
+			}
 			System.out.println("\n||White - Turn " + i +"||" );
-			playTurn(p1);
-			if(m_state.isNoKing(1)) {
+			playTurn(p1); //White plays
+			if(m_state.isNoKing(1)) { // Check if white wins
 				System.out.println("White win");
 				break;
 			}
+			if(checkSameAction(m_actverif,wAction)){
+				System.out.println("3 times, a similar action");
+				break;
+			}
 			System.out.println("\n||Black - Turn " + i +"||");
-			playTurn(p2);
+			playTurn(p2); //Black plays
 		}
 	}
 	
@@ -80,6 +93,8 @@ public class Chess {
 			AlfaBeta alfabeta = new AlfaBeta(m_profund,m_eval);
 			act = alfabeta.searchAction(m_state, color);
 		}
+		if(color==0){ wAction.add(act);}
+		else if(color ==1){ bAction.add(act);}
 		state = m_state.applyAction(act,m_state.createPiece(act.m_initPos.row, act.m_initPos.col));
 		Utils.printBoard(state);
 		m_state = state;
@@ -120,6 +135,8 @@ public class Chess {
 				System.out.println("!! Impossible Move !!\\n");
 			}
 		}
+		if(color==0){ wAction.add(act);}
+		else if(color ==1){ bAction.add(act);}
 		state = m_state.applyAction(act, piece);
 		Utils.printBoard(state);
 		m_state = state;
@@ -164,14 +181,39 @@ public class Chess {
 			break;
 		}
 	}
-	
-	
+
+	public Boolean checkSameAction(int sizeVerif, ArrayList<Action> acts){
+		if(sizeVerif > acts.size()){ return false; }
+		for(int i = acts.size()-sizeVerif;i<acts.size();i++){
+			int cnt=0;
+			for(int j = acts.size()-sizeVerif;j<acts.size();j++){
+				if((i != j) && (acts.get(i).m_initPos.equals(acts.get(j).m_initPos)) && (acts.get(i).m_finalPos.equals(acts.get(j).m_finalPos))){
+					cnt+=1;
+				}
+			}
+			if(cnt>=3){ return true;}
+		}
+		return false;
+	}
+
+	public static void displayTime(long t1, long t2) {
+		long res = (int) ((t2-t1)/1000);
+		int hours = (int)(res / 3600);
+		int minutes = (int)((res - 3600*hours)/60);
+		int seconds = (int) (res - hours * 3600 - minutes*60);
+		int milli = (int) ((t2-t1) - hours*3600*1000 - minutes*60*1000 - seconds*1000);
+		System.out.println("Time of execution - " + hours + "h:" + minutes + "min:" + seconds + "sec:" + milli + "ms" );
+	}
 
 	public static void main(String[] args) {
-		Chess chess = new Chess("alfabeta",true,6,"black",-1);
+		long time1 = System.currentTimeMillis();
+		Chess chess = new Chess("alfabeta",true,4,"todo",-1,0.95,84);
 		//Chess chess = new Chess("alfabeta",false,6,"black",25);
 		System.out.println("|||Chess Board|||");
 		Utils.printBoard(chess.m_state);
+		Evaluate ev = new Evaluate();
 		chess.execute();
+		long time2 = System.currentTimeMillis();
+		displayTime(time1,time2); //Calculate time to execute
 	}	
 }

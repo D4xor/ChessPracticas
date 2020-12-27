@@ -26,7 +26,7 @@ public class Action {
 		String s = "";
 		
 		s += "[ (" + m_initPos.row + "," + m_initPos.col + ") -> (" + 
-				 + m_finalPos.row + "," + m_finalPos.col + ") ]";
+				 + m_finalPos.row + "," + m_finalPos.col + ")";
 		
 		return s;
 	}

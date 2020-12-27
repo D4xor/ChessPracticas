@@ -14,11 +14,9 @@ public class AlfaBeta {
 	}
 	
 	public Action searchAction(State board, int colorPlayer) {
-		int maxValue = Integer.MIN_VALUE;
-		int minValue = Integer.MAX_VALUE;
-		int alpha = Integer.MIN_VALUE;
-		int beta = Integer.MAX_VALUE;
-		int value;
+		double alpha = Integer.MIN_VALUE;
+		double beta = Integer.MAX_VALUE;
+		double value;
 		Action bestAction = null;
 		for(Position position : board.getPositionPieceColor(colorPlayer)) {
 			Piece piece = board.createPiece(position.row, position.col);
@@ -32,7 +30,6 @@ public class AlfaBeta {
 					if((colorPlayer == 0)) {
 						if(value >= beta) {
 							value = beta;
-							System.out.println("test");
 						}
 						if(value > alpha) {
 							alpha = value;
@@ -41,7 +38,6 @@ public class AlfaBeta {
 					}else if ((colorPlayer == 1)){
 						if(value <= alpha) {
 							value = alpha;
-							System.out.println("test");
 						}
 						if(value < beta) {
 							beta = value;
@@ -54,18 +50,17 @@ public class AlfaBeta {
 		return bestAction;
 	}
 	
-	public int alphaBetaMax(State board,int profundidad, Position pos, int alpha, int beta) {
+	public double alphaBetaMax(State board,int profundidad, Position pos, double alpha, double beta) {
 		if(profundidad == 0) {
-			return (m_eval.evaluatePosition(board,pos));
+			return (m_eval.evaluatePosition2(board,0));
 		}
-		int maxValue = Integer.MIN_VALUE;
 		for(Position position : board.getPositionPieceColor(0)) {
 			Piece piece = board.createPiece(position.row, position.col);
 			ArrayList<Action> possibleActions = piece.getPossibleActions(board,position);
 			if (possibleActions.size() != 0){
 				for(int i=0;i<possibleActions.size();i++) {
 					actual = board.applyAction(possibleActions.get(i), piece);
-					int value = alphaBetaMin(actual,profundidad-1,possibleActions.get(i).m_finalPos,alpha,beta);
+					double value = alphaBetaMin(actual,profundidad-1,possibleActions.get(i).m_finalPos,alpha,beta);
 					if(value >= beta) {
 						return beta;
 					}
@@ -78,18 +73,17 @@ public class AlfaBeta {
 		return alpha;
 	}
 	
-	public int alphaBetaMin(State board,int profundidad, Position pos, int alpha, int beta) {
+	public double alphaBetaMin(State board,int profundidad, Position pos, double alpha, double beta) {
 		if(profundidad == 0) {
-			return (m_eval.evaluatePosition(board,pos));
+			return (m_eval.evaluatePosition2(board,0));
 		}
-		int minValue = Integer.MAX_VALUE;
 		for(Position position : board.getPositionPieceColor(1)) {
 			Piece piece = board.createPiece(position.row, position.col);
 			ArrayList<Action> possibleActions = piece.getPossibleActions(board,position);
 			if (possibleActions.size() != 0){
 				for(int i=0;i<possibleActions.size();i++) {
 					actual = board.applyAction(possibleActions.get(i), piece);
-					int value = alphaBetaMax(actual,profundidad-1,possibleActions.get(i).m_finalPos,alpha,beta);
+					double value = alphaBetaMax(actual,profundidad-1,possibleActions.get(i).m_finalPos,alpha,beta);
 					if(value <= alpha) {
 						return alpha;
 					}
@@ -102,9 +96,9 @@ public class AlfaBeta {
 		return beta;
 	}
 	
-	public int minOrMax(State board,int colorPlayer, Position pos, int alpha, int beta) {
+	public double minOrMax(State board,int colorPlayer, Position pos, double alpha, double beta) {
 		int prof = m_profundidad; 
-		int val;
+		double val;
 		if(colorPlayer == 0) {
 			val = alphaBetaMin(board,prof-1,pos,alpha,beta);
 		}else {

@@ -15,9 +15,9 @@ public class MinMax {
 	}
 	
 	public Action searchAction(State board, int colorPlayer) {
-		int maxValue = Integer.MIN_VALUE;
-		int minValue = Integer.MAX_VALUE;
-		int value;
+		double maxValue = Integer.MIN_VALUE;
+		double minValue = Integer.MAX_VALUE;
+		double value;
 		Action bestAction = null;
 		for(Position position : board.getPositionPieceColor(colorPlayer)) {
 			Piece piece = board.createPiece(position.row, position.col);
@@ -41,18 +41,18 @@ public class MinMax {
 		return bestAction;
 	}
 	
-	public int max(State board,int profundidad, Position pos) {
+	public double max(State board,int profundidad, Position pos) {
 		if((profundidad == 0) || board.isNoKing(0) || board.isNoKing(1)) {
-			return (m_eval.evaluatePosition(board,pos));
+			return (m_eval.evaluatePosition2(board,1));
 		}
-		int maxValue = Integer.MIN_VALUE;
+		double maxValue = Integer.MIN_VALUE;
 		for(Position position : board.getPositionPieceColor(0)) {
 			Piece piece = board.createPiece(position.row, position.col);
 			ArrayList<Action> possibleActions = piece.getPossibleActions(board,position);
 			if (possibleActions.size() != 0){
 				for(int i=0;i<possibleActions.size();i++) {
 					actual = board.applyAction(possibleActions.get(i), piece);
-					int value = min(actual,profundidad-1,possibleActions.get(i).m_finalPos);
+					double value = min(actual,profundidad-1,possibleActions.get(i).m_finalPos);
 					if(value > maxValue) {
 						maxValue = value;
 					}
@@ -62,18 +62,18 @@ public class MinMax {
 		return maxValue;
 	}
 	
-	public int min(State board,int profundidad, Position pos) {
+	public double min(State board,int profundidad, Position pos) {
 		if((profundidad == 0) || board.isNoKing(0) || board.isNoKing(1)) {
-			return (m_eval.evaluatePosition(board,pos));
+			return (m_eval.evaluatePosition2(board,1));
 		}
-		int minValue = Integer.MAX_VALUE;
+		double minValue = Integer.MAX_VALUE;
 		for(Position position : board.getPositionPieceColor(1)) {
 			Piece piece = board.createPiece(position.row, position.col);
 			ArrayList<Action> possibleActions = piece.getPossibleActions(board,position);
 			if (possibleActions.size() != 0){
 				for(int i=0;i<possibleActions.size();i++) {
 					actual = board.applyAction(possibleActions.get(i), piece);
-					int value = max(actual,profundidad-1,possibleActions.get(i).m_finalPos);
+					double value = max(actual,profundidad-1,possibleActions.get(i).m_finalPos);
 					if(value < minValue) {
 						minValue = value;
 					}
@@ -83,9 +83,9 @@ public class MinMax {
 		return minValue;
 	}
 	
-	public int minOrMax(State board,int colorPlayer, Position pos) {
+	public double minOrMax(State board,int colorPlayer, Position pos) {
 		int prof = m_profundidad; 
-		int val;
+		double val;
 		if(colorPlayer == 0) {
 			val = min(board,prof-1,pos);
 		}else {
